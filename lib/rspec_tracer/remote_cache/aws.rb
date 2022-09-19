@@ -15,6 +15,8 @@ module RSpecTracer
 
         system(
           @aws_cli,
+          '--profile',
+          aws_profile,
           's3api',
           'head-object',
           '--bucket',
@@ -31,6 +33,8 @@ module RSpecTracer
 
         system(
           @aws_cli,
+          '--profile',
+          aws_profile,
           's3api',
           'get-object',
           '--bucket',
@@ -48,6 +52,8 @@ module RSpecTracer
 
         raise AwsError, "Failed to upload branch refs for #{branch_name} branch" unless system(
           @aws_cli,
+          '--profile',
+          aws_profile,
           's3',
           'cp',
           file_name,
@@ -62,7 +68,7 @@ module RSpecTracer
       def cache_files_list(ref)
         prefix = "s3://#{@s3_bucket}/#{@s3_path}/#{ref}/"
 
-        `#{@aws_cli} s3 ls #{prefix} --recursive`.chomp.split("\n")
+        `#{@aws_cli} --profile #{aws_profile} s3 ls #{prefix} --recursive`.chomp.split("\n")
       end
 
       def download_file(ref, file_name)
@@ -71,6 +77,8 @@ module RSpecTracer
 
         raise AwsError, "Failed to download file #{remote_path}" unless system(
           @aws_cli,
+          '--profile',
+          aws_profile,
           's3',
           'cp',
           remote_path,
@@ -88,6 +96,8 @@ module RSpecTracer
 
         raise AwsError, "Failed to download files from #{remote_dir}" unless system(
           @aws_cli,
+          '--profile',
+          aws_profile,
           's3',
           'cp',
           remote_dir,
@@ -110,6 +120,8 @@ module RSpecTracer
 
         raise AwsError, "Failed to upload file #{local_path}" unless system(
           @aws_cli,
+          '--profile',
+          aws_profile,
           's3',
           'cp',
           local_path,
@@ -127,6 +139,8 @@ module RSpecTracer
 
         raise AwsError, "Failed to download files from #{local_dir}" unless system(
           @aws_cli,
+          '--profile',
+          aws_profile,
           's3',
           'cp',
           local_dir,
@@ -140,6 +154,10 @@ module RSpecTracer
       end
 
       private
+
+      def aws_profile
+        ENV.fetch('AWS_PROFILE', 'default')
+      end
 
       def setup_s3
         s3_uri = RSpecTracer.reports_s3_path
